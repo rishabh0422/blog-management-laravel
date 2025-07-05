@@ -18,12 +18,12 @@ services:
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        value: your-db-host
+        value: aws.connect.psdb.io
       - key: DB_PORT
         value: 3306
       - key: DB_DATABASE
-        value: your-db-name
+        value: blogDB
       - key: DB_USERNAME
-        value: your-db-username
+        value: rishabh
       - key: DB_PASSWORD
-        value: your-db-password
+        value: SS123!!ee
