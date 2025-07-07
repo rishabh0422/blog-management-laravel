@@ -78,19 +78,9 @@ class PostsController extends Controller
      */
     public function edit($id)
     {
-
+        $post = Post::find($id);
         $categories = Category::all();
-        $post = DB::table('posts')
-            ->join('categories', 'posts.category_id', '=', 'categories.id')
-            ->select(
-                'posts.id',
-                'posts.title',
-                'posts.body',
-                'posts.img',
-                'categories.id as category_id',
-                'categories.name as category_name',
-            )->where('posts.id', $id)->first();
-        return view('posts.edit', compact('post', 'categories'));
+        return view('posts.edit', compact('post' , 'categories'));
     }
 
     /**
