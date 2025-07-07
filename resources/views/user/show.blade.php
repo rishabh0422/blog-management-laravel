@@ -2,7 +2,7 @@
     <div class="max-w-4xl mx-auto px-4 py-8">
 
         {{-- Post Image --}}
-        <img src="{{ asset('storage/' . $post->img) }}" alt="{{ $post->title }}"
+        <img src="{{ Str::startsWith($post->img, 'https') ? $post->img : url('storage/' . $post->img) }}" alt="{{ $post->title }}"
             class="w-full h-auto rounded-xl shadow-md mb-6">
 
         {{-- Post Title --}}

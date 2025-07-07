@@ -34,13 +34,14 @@
                 @foreach ($blogs as $blog)
 
                     <div class="w-full bg-white rounded-lg shadow-md overflow-hidden">
-                        <img src="{{ url('storage/'.$blog->img) }}" alt="Card Image" class="w-full h-48 object-cover">
+                        <img src="{{ Str::startsWith($blog->img, 'https') ? $blog->img : url('storage/' . $blog->img) }}"
+                            alt="Card Image" class="w-full h-48 object-cover">
                         <div class="p-4">
                             <h2 class="text-lg font-semibold text-gray-800 mb-2">{{ $blog->title }}</h2>
                             <p class="text-sm text-gray-600 mb-4">
                                 {{ $blog->slug }}
                             </p>
-                            <a href=""
+                            <a href="{{ route('user.posts.show', $blog->slug) }}"
                                 class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
                                 Read
                             </a>

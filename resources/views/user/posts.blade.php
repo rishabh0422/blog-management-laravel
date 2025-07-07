@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="container mx-auto px-4 py-6 ">
-         <div class="flex items-center justify-between mb-4 gap-4 flex-wrap">
+        <div class="flex items-center justify-between mb-4 gap-4 flex-wrap">
 
             <!-- Left: Title -->
             <h2 class="text-2xl font-bold">All Categories</h2>
@@ -20,7 +20,7 @@
                         class="min-w-[180px] rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">All Categories</option>
                         @foreach($categories as $category)
-                            <option value="{{ $category->id }}" >
+                            <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                         @endforeach
@@ -60,8 +60,8 @@
                         <tr>
                             <td class="px-4 py-2 text-left border">{{ $post->title }}</td>
                             <td class="px-4 py-2 text-left border">{{ $post->slug }}</td>
-                            <td class="px-4 py-2 text-left border">{{ explode(" ",$post->created_at)[0] }}</td>
-                            <td class="px-4 py-2 text-left border">{{ explode(" ",$post->updated_at)[0] }}</td>
+                            <td class="px-4 py-2 text-left border">{{ explode(" ", $post->created_at)[0] }}</td>
+                            <td class="px-4 py-2 text-left border">{{ explode(" ", $post->updated_at)[0] }}</td>
                             <td class="px-4 py-2 text-left border flex gap-2">
                                 <a href="{{ route('user.posts.show', $post->slug) }}"
                                     class="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
@@ -71,10 +71,11 @@
                                     class="inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-700 transition">
                                     Edit
                                 </a>
-                                <form action="{{ route('user.posts.destroy', $post->id) }}" method="post">
+                                <form id="delete-post-{{ $post->id }}" action="{{ route('user.posts.destroy', $post->id) }}"
+                                    method="post">
                                     @csrf
                                     @method("DELETE")
-                                    <button type="submit"
+                                    <button type="button" onclick="confirmDelete({{$post->id}})"
                                         class="inline-block px-4 py-2  bg-red-600 text-white rounded-lg hover:bg-blue-700 transition">
                                         Delete
                                     </button>
@@ -88,4 +89,21 @@
         {{ $posts->links() }}
     </div>
 
+    <script>
+        function confirmDelete(postId) {
+            Swal.fire({
+                title: "Are you sure !",
+                text: "You wan't to delete this Post",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    document.getElementById(`delete-post-${postId}`).submit();
+                }
+            })
+        }
+    </script>
 </x-app-layout>

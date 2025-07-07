@@ -24,7 +24,7 @@ class PostsController extends Controller
             return view('posts.index', compact('posts', 'categories'));
         }
         $categories = Category::all();
-        $posts = Post::paginate(5);
+        $posts = Post::latest('created_at')->paginate(5);
         return view('posts.index', compact('posts', 'categories'));
     }
 
@@ -45,17 +45,21 @@ class PostsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'body' => 'required|string|min:10',
+            'body' => 'nullable',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-         $img_path = $request->file('img')->store('', 'public');
         $post = new Post();
+        if ($request->hasFile('img')) {
+            $img_path = $request->file('img')->store('', 'public');
+            $post->img = $img_path;
+        } else {
+            $post->img = "https://images.pexels.com/photos/262508/pexels-photo-262508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
+        }
         $post->title = $request->title;
         $post->slug = Str::slug($request->title);
         $post->body = $request->body;
         $post->category_id = $request->category_id;
         $post->user_id = auth()->id();
-        $post->img =$img_path;
         $post->save();
         return redirect('/posts');
     }
@@ -64,9 +68,9 @@ class PostsController extends Controller
      * Display the specified resource.
      */
     public function show($slug)
-    {   
-        $post=Post::with(['category','user'])->where('slug',$slug)->firstOrFail();
-        return view('posts.show',compact('post'));
+    {
+        $post = Post::with(['category', 'user'])->where('slug', $slug)->firstOrFail();
+        return view('posts.show', compact('post'));
     }
 
     /**
@@ -96,18 +100,24 @@ class PostsController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'body' => 'required|string|min:10',
-            'img' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'category_id' => 'required',
+            'body' => 'nullable',
+            'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-         $img_path = $request->file('img')->store('', 'public');
+
+
         $post = Post::findOrFail($id);
+        if ($request->hasFile('img')) {
+            $img_path = $request->file('img')->store('', 'public');
+            $post->img = $img_path;
+        } else {
+            $post->img = "https://images.pexels.com/photos/262508/pexels-photo-262508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
+        }
         $post->title = $request->title;
         $post->slug = Str::slug($request->title);
         $post->body = $request->body;
         $post->category_id = $request->category_id;
         $post->user_id = auth()->id();
-        $post->img = $img_path;
         $post->save();
         return redirect('/posts');
     }

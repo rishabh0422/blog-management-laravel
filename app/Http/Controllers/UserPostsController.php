@@ -21,12 +21,12 @@ class UserPostsController extends Controller
                 ->when($request->category_id, function ($query) use ($request) {
                     $query->where('category_id', $request->category_id);
                 })
-                ->latest()
+                ->latest('created_at')
                 ->paginate(5);
             return view('user.posts', compact('posts', 'categories'));
         }
         $categories = Category::all();
-        $posts = auth()->user()->posts()->with('category')->paginate(6);
+        $posts = auth()->user()->posts()->with('category')->latest('created_at')->paginate(6);
         return view('user.posts', compact('posts', 'categories'));
     }
 
@@ -47,21 +47,25 @@ class UserPostsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'body' => 'required|string|min:10',
+            'body' => 'nullable',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
 
-
-        $img_path = $request->file('img')->store('', 'public');
-
         $post = new Post();
+
+        if ($request->hasFile('img')) {
+            $img_path = $request->file('img')->store('', 'public');
+            $post->img = $img_path;
+        } else {
+
+            $post->img = "https://images.pexels.com/photos/262508/pexels-photo-262508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
+        }
         $post->title = $request->title;
         $post->slug = Str::slug($request->title);
         $post->body = $request->body;
         $post->category_id = $request->category_id;
         $post->user_id = auth()->id();
-        $post->img = $img_path;
         $post->save();
         return redirect('/user/posts');
 
@@ -75,7 +79,7 @@ class UserPostsController extends Controller
         $post = Post::with(['category', 'user'])
             ->where('slug', $slug)
             ->firstOrFail();
-        return view('user.show',compact('post')); 
+        return view('user.show', compact('post'));
     }
 
     /**
@@ -100,12 +104,18 @@ class UserPostsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'body' => 'required|string|min:10',
+            'body' => 'nullable',
             'img' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
-
         $post = Post::findOrFail($id);
+        if ($request->hasFile('img')) {
+            $img_path = $request->file('img')->store('', 'public');
+            $post->img = $img_path;
+        } else {
+
+            $post->img = "https://images.pexels.com/photos/262508/pexels-photo-262508.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
+        }
+
         $post->title = $request->title;
         $post->slug = Str::slug($request->title);
         $post->body = $request->body;
@@ -114,12 +124,6 @@ class UserPostsController extends Controller
 
         // If a new image is uploaded
         if ($request->hasFile('img')) {
-            // Delete old image if it exists
-            if ($post->img && file_exists(storage_path('app/public/' . $post->img))) {
-                unlink(storage_path('app/public/' . $post->img));
-            }
-
-            // Store new image in storage/app/public
             $img_path = $request->file('img')->store('', 'public');
             $post->img = $img_path;
         }

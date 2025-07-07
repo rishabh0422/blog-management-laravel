@@ -3,7 +3,7 @@
         <div class="flex justify-between h-16">
             <!-- Left Side -->
             <div class="flex space-x-4 items-center">
-                <a href="{{ url('/') }}" class="text-xl font-bold text-blue-600">
+                <a href="" class="text-xl font-bold text-blue-600">
                     MyBlog
                 </a>
 
